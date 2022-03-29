@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
-
-namespace TarodevController {
+namespace Player {
     /// <summary>
     /// Hey!
     /// Tarodev here. I built this controller as there was a severe lack of quality & free 2D controllers out there.

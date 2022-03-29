@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace TarodevController {
+namespace Player {
 	public struct FrameInput {
 		public float X,Y;
 		public bool JumpDown;

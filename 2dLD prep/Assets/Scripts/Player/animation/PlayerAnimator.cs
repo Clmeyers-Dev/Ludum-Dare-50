@@ -1,7 +1,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace TarodevController {
+namespace Player {
     /// <summary>
     /// This is a pretty filthy script. I was just arbitrarily adding to it as I went.
     /// You won't find any programming prowess here.
@@ -14,8 +14,8 @@ namespace TarodevController {
         [SerializeField] private ParticleSystem _jumpParticles, _launchParticles;
         [SerializeField] private ParticleSystem _moveParticles, _landParticles;
         [SerializeField] private AudioClip[] _footsteps;
-        [SerializeField] private float _maxTilt = 5;
-        [SerializeField] private float _tiltSpeed = 30;
+       // [SerializeField] private float _maxTilt = 5;
+      //  [SerializeField] private float _tiltSpeed = 30;
         [SerializeField, Range(1f, 3f)] private float _maxIdleSpeed = 2;
         [SerializeField] private float _maxParticleFallSpeed = -40;
 
@@ -82,17 +82,17 @@ namespace TarodevController {
     
 
         private void OnLanded(bool grounded) {
-            /*if (grounded) {
+            if (grounded) {
                 _anim.SetTrigger(GroundedKey);
-              //  _source.PlayOneShot(_footsteps[Random.Range(0, _footsteps.Length)]);
-               // _moveParticles.Play();
+               _source.PlayOneShot(_footsteps[Random.Range(0, _footsteps.Length)]);
+                _moveParticles.Play();
                 _landParticles.transform.localScale = Vector3.one * Mathf.InverseLerp(0, _maxParticleFallSpeed, _movement.y);
                 SetColor(_landParticles);
                 _landParticles.Play();
             }
             else {
-               // _moveParticles.Stop();
-            }*/
+               _moveParticles.Stop();
+            }
         }
 
         void Update() {
@@ -102,8 +102,8 @@ namespace TarodevController {
             if (_player.Input.X != 0) transform.localScale = new Vector3(_player.Input.X > 0 ? 1 : -1, 1, 1);
 
             // Lean while running
-            var targetRotVector = new Vector3(0, 0, Mathf.Lerp(-_maxTilt, _maxTilt, Mathf.InverseLerp(-1, 1, _player.Input.X)));
-            _anim.transform.rotation = Quaternion.RotateTowards(_anim.transform.rotation, Quaternion.Euler(targetRotVector), _tiltSpeed * Time.deltaTime);
+           // var targetRotVector = new Vector3(0, 0, Mathf.Lerp(-_maxTilt, _maxTilt, Mathf.InverseLerp(-1, 1, _player.Input.X)));
+          //  _anim.transform.rotation = Quaternion.RotateTowards(_anim.transform.rotation, Quaternion.Euler(targetRotVector), _tiltSpeed * Time.deltaTime);
 
             // Speed up idle while running
             _anim.SetFloat(IdleSpeedKey, Mathf.Lerp(1, _maxIdleSpeed, Mathf.Abs(_player.Input.X)));

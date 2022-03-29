@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+namespace Player{
 public class PlayerManager : MonoBehaviour
 {
     private PauseMenu PauseMenu;
@@ -35,4 +35,5 @@ public class PlayerManager : MonoBehaviour
             }
         }
     }
+}
 }
