@@ -21,17 +21,21 @@ public class PlayerManager : MonoBehaviour
     }
     void HandleInput()
     {
+        
         if (Input.GetKeyDown(KeyCode.Escape)&&PauseMenu!=null)
         {
+            Debug.Log("pause");
             if (!PauseMenu.gameObject.activeSelf)
             {
                
                 PauseMenu.gameObject.SetActive(true);
+                Time.timeScale = 0;
             }
             else
             {
                 
                 PauseMenu.gameObject.SetActive(false);
+                 Time.timeScale = 1;
             }
         }
     }
