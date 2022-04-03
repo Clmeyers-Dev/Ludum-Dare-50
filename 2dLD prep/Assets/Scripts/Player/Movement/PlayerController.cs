@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
-namespace Player {
+namespace Player
+{
     /// <summary>
     /// Hey!
     /// Tarodev here. I built this controller as there was a severe lack of quality & free 2D controllers out there.
@@ -12,9 +13,10 @@ namespace Player {
     /// If you hve any questions or would like to brag about your score, come to discord: https://discord.gg/GqeHHnhHpz
     /// </summary>
     [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
-    public class PlayerController : MonoBehaviour, IPlayerController {
+    public class PlayerController : MonoBehaviour, IPlayerController
+    {
         [SerializeField] private bool _allowDoubleJump, _allowDash;
-        
+
         // Public for external hooks
         public FrameInput Input { get; private set; }
         public Vector3 RawMovement { get; private set; }
@@ -22,6 +24,7 @@ namespace Player {
         public event Action<bool> OnGroundedChanged;
         public event Action OnJumping, OnDoubleJumping;
         public event Action<bool> OnDashingChanged;
+        public Animator animator;
 
         private Rigidbody2D _rb;
         private BoxCollider2D _collider;
@@ -29,14 +32,47 @@ namespace Player {
         private Vector3 _velocity;
         private float _currentHorizontalSpeed, _currentVerticalSpeed;
         private int _fixedFrame;
-        
-        void Awake() {
+        [Header("wall Jump")]
+
+        public Vector2 wallHopDirection;
+        public Vector2 wallJumpDirection;
+        public float wallHopForce;
+        public float wallJumpForce;
+        private int facingDirection;
+        private bool isWallSliding;
+        [SerializeField]
+        private bool canWallJump; 
+        private float moveInput;
+        void Start()
+        {
+            wallHopDirection.Normalize();
+            wallJumpDirection.Normalize();
+        }
+
+        void Awake()
+        {
             _rb = GetComponent<Rigidbody2D>();
             _collider = GetComponent<BoxCollider2D>();
         }
 
-
-        private void Update() {
+        private void wallJump(){
+            if(isWallSliding&&moveInput ==0&&_jumpToConsume){
+                Vector2 forceToAdd = new Vector2 (wallHopForce*wallHopDirection.x*-facingDirection,wallHopForce*wallHopDirection.y);
+                _rb.AddForce(forceToAdd,ForceMode2D.Impulse);
+                _jumpToConsume = false;
+            }else if ((isWallSliding|| _colLeft||_colRight )&&moveInput!=0&&_jumpToConsume){
+                
+            }
+        }
+        private void Update()
+        {
+            moveInput = UnityEngine.Input.GetAxisRaw("Horizontal");
+            if(Math.Abs( moveInput)>0){
+                animator.SetBool("walking",true);
+            }else{
+                 animator.SetBool("walking",false);
+            }
+            facingDirection = (int)transform.localScale.x;
             // Calculate velocity
             _velocity = (transform.position - _lastPosition) / Time.deltaTime;
             _lastPosition = transform.position;
@@ -44,7 +80,8 @@ namespace Player {
             GatherInput();
         }
 
-        void FixedUpdate() {
+        void FixedUpdate()
+        {
             _fixedFrame++;
 
             RunCollisionChecks();
@@ -59,8 +96,10 @@ namespace Player {
 
         #region Gather Input
 
-        private void GatherInput() {
-            Input = new FrameInput {
+        private void GatherInput()
+        {
+            Input = new FrameInput
+            {
                 JumpDown = UnityEngine.Input.GetButtonDown("Jump"),
                 JumpHeld = UnityEngine.Input.GetButton("Jump"),
                 DashDown = UnityEngine.Input.GetButtonDown("Dash"),
@@ -69,7 +108,8 @@ namespace Player {
             };
 
             if (Input.DashDown) _dashToConsume = true;
-            if (Input.JumpDown) {
+            if (Input.JumpDown)
+            {
                 _lastJumpPressed = _fixedFrame;
                 _jumpToConsume = true;
             }
@@ -79,29 +119,33 @@ namespace Player {
 
         #region Collisions
 
-        [Header("COLLISION")] [SerializeField] private LayerMask _groundLayer;
+        [Header("COLLISION")][SerializeField] private LayerMask _groundLayer;
         [SerializeField] private int _detectorCount = 3;
         [SerializeField] private float _detectionRayLength = 0.1f;
 
         private RayRange _raysUp, _raysRight, _raysDown, _raysLeft;
 
-        private bool _hittingCeiling, _grounded, _colRight, _colLeft;
+        public bool _hittingCeiling, _grounded, _colRight, _colLeft;
 
         private float _timeLeftGrounded;
 
-
+        public Transform safepos;
         // We use these raycast checks for pre-collision information
-        private void RunCollisionChecks() {
+        private void RunCollisionChecks()
+        {
             // Generate ray ranges. 
             CalculateRayRanged();
 
             // Ground
             var groundedCheck = RunDetection(_raysDown);
-            if (_grounded && !groundedCheck) {
+            if (_grounded && !groundedCheck)
+            {
                 _timeLeftGrounded = _fixedFrame; // Only trigger when first leaving
+               // safepos.position = transform.position;
                 OnGroundedChanged?.Invoke(false);
             }
-            else if (!_grounded && groundedCheck) {
+            else if (!_grounded && groundedCheck)
+            {
                 _coyoteUsable = true; // Only trigger when first touching
                 _executedBufferedJump = false;
                 _doubleJumpUsable = true;
@@ -116,12 +160,14 @@ namespace Player {
             // The rest
             _hittingCeiling = RunDetection(_raysUp);
 
-            bool RunDetection(RayRange range) {
+            bool RunDetection(RayRange range)
+            {
                 return EvaluateRayPositions(range).Any(point => Physics2D.Raycast(point, range.Dir, _detectionRayLength, _groundLayer));
             }
         }
 
-        private void CalculateRayRanged() {
+        private void CalculateRayRanged()
+        {
             var b = _collider.bounds;
 
             _raysDown = new RayRange(b.min.x, b.min.y, b.max.x, b.min.y, Vector2.down);
@@ -131,21 +177,26 @@ namespace Player {
         }
 
 
-        private IEnumerable<Vector2> EvaluateRayPositions(RayRange range) {
-            for (var i = 0; i < _detectorCount; i++) {
+        private IEnumerable<Vector2> EvaluateRayPositions(RayRange range)
+        {
+            for (var i = 0; i < _detectorCount; i++)
+            {
                 var t = (float)i / (_detectorCount - 1);
                 yield return Vector2.Lerp(range.Start, range.End, t);
             }
         }
 
-        private void OnDrawGizmos() {
+        private void OnDrawGizmos()
+        {
             if (!_collider) _collider = GetComponent<BoxCollider2D>();
 
             // Rays
             if (!Application.isPlaying) CalculateRayRanged();
             Gizmos.color = Color.blue;
-            foreach (var range in new List<RayRange> { _raysDown, _raysUp }) {
-                foreach (var point in EvaluateRayPositions(range)) {
+            foreach (var range in new List<RayRange> { _raysDown, _raysUp })
+            {
+                foreach (var point in EvaluateRayPositions(range))
+                {
                     Gizmos.DrawRay(point, range.Dir * _detectionRayLength);
                 }
             }
@@ -156,13 +207,15 @@ namespace Player {
 
         #region Walk
 
-        [Header("WALKING")] [SerializeField] private float _acceleration = 90;
+        [Header("WALKING")][SerializeField] private float _acceleration = 90;
         [SerializeField] private float _moveClamp = 13;
         [SerializeField] private float _deAcceleration = 60f;
         [SerializeField] private float _apexBonus = 2;
 
-        private void CalculateWalk() {
-            if (Input.X != 0) {
+        private void CalculateWalk()
+        {
+            if (Input.X != 0)
+            {
                 // Set horizontal move speed
                 _currentHorizontalSpeed += Input.X * _acceleration * Time.fixedDeltaTime;
 
@@ -173,12 +226,14 @@ namespace Player {
                 var apexBonus = Mathf.Sign(Input.X) * _apexBonus * _apexPoint;
                 _currentHorizontalSpeed += apexBonus * Time.fixedDeltaTime;
             }
-            else {
+            else
+            {
                 // No input. Let's slow the character down
                 _currentHorizontalSpeed = Mathf.MoveTowards(_currentHorizontalSpeed, 0, _deAcceleration * Time.fixedDeltaTime);
             }
 
-            if (_currentHorizontalSpeed > 0 && _colRight || _currentHorizontalSpeed < 0 && _colLeft) {
+            if (_currentHorizontalSpeed > 0 && _colRight || _currentHorizontalSpeed < 0 && _colLeft)
+            {
                 // Don't pile up useless horizontal
                 _currentHorizontalSpeed = 0;
             }
@@ -188,20 +243,24 @@ namespace Player {
 
         #region Gravity
 
-        [Header("GRAVITY")] [SerializeField] private float _fallClamp = -40f;
+        [Header("GRAVITY")][SerializeField] private float _fallClamp = -40f;
         [SerializeField] private float _minFallSpeed = 80f;
         [SerializeField] private float _maxFallSpeed = 120f;
         private float _fallSpeed;
 
 
-        private void CalculateGravity() {
-            if (_grounded) {
+        private void CalculateGravity()
+        {
+            if (_grounded)
+            {
                 // // Move out of the ground
-                if (_currentVerticalSpeed < 0) {
+                if (_currentVerticalSpeed < 0)
+                {
                     _currentVerticalSpeed = 0;
                 }
             }
-            else {
+            else
+            {
                 // Add downward force while ascending if we ended the jump early
                 var fallSpeed = _endedJumpEarly && _currentVerticalSpeed > 0 ? _fallSpeed * _jumpEndEarlyGravityModifier : _fallSpeed;
 
@@ -217,7 +276,7 @@ namespace Player {
 
         #region Jump
 
-        [Header("JUMPING")] [SerializeField] private float _jumpHeight = 30;
+        [Header("JUMPING")][SerializeField] private float _jumpHeight = 30;
         [SerializeField] private float _jumpApexThreshold = 10f;
         [SerializeField] private int _coyoteTimeThreshold = 7;
         [SerializeField] private int _jumpBuffer = 7;
@@ -233,19 +292,24 @@ namespace Player {
         private bool HasBufferedJump => (_grounded || _cornerStuck) && _lastJumpPressed + _jumpBuffer > _fixedFrame && !_executedBufferedJump;
         private bool CanDoubleJump => _allowDoubleJump && _doubleJumpUsable && !_coyoteUsable;
 
-        private void CalculateJumpApex() {
-            if (!_grounded) {
+        private void CalculateJumpApex()
+        {
+            if (!_grounded)
+            {
                 // Gets stronger the closer to the top of the jump
                 _apexPoint = Mathf.InverseLerp(_jumpApexThreshold, 0, Mathf.Abs(_velocity.y));
                 _fallSpeed = Mathf.Lerp(_minFallSpeed, _maxFallSpeed, _apexPoint);
             }
-            else {
+            else
+            {
                 _apexPoint = 0;
             }
         }
 
-        private void CalculateJump() {
-            if (_jumpToConsume && CanDoubleJump) {
+        private void CalculateJump()
+        {
+            if (_jumpToConsume && CanDoubleJump)
+            {
                 _currentVerticalSpeed = _jumpHeight;
                 _doubleJumpUsable = false;
                 _endedJumpEarly = false;
@@ -255,7 +319,8 @@ namespace Player {
 
 
             // Jump if: grounded or within coyote threshold || sufficient jump buffer
-            if ((_jumpToConsume && CanUseCoyote) || HasBufferedJump) {
+            if ((_jumpToConsume && CanUseCoyote) || HasBufferedJump)
+            {
                 _currentVerticalSpeed = _jumpHeight;
                 _endedJumpEarly = false;
                 _coyoteUsable = false;
@@ -275,7 +340,7 @@ namespace Player {
 
         #region Dash
 
-        [Header("DASH")] [SerializeField] private float _dashPower = 50;
+        [Header("DASH")][SerializeField] private float _dashPower = 50;
         [SerializeField] private int _dashLength = 3;
         [SerializeField] private float _dashEndHorizontalMultiplier = 0.25f;
         private float _startedDashing;
@@ -286,9 +351,11 @@ namespace Player {
         private bool _dashing;
         private bool _dashToConsume;
 
-        void CalculateDash() {
+        void CalculateDash()
+        {
             if (!_allowDash) return;
-            if (_dashToConsume && _canDash) {
+            if (_dashToConsume && _canDash)
+            {
                 _dashToConsume = false;
                 var vel = new Vector2(Input.X, _grounded && Input.Y < 0 ? 0 : Input.Y);
                 if (vel == Vector2.zero) return;
@@ -299,11 +366,13 @@ namespace Player {
                 _startedDashing = _fixedFrame;
             }
 
-            if (_dashing) {
+            if (_dashing)
+            {
                 _currentHorizontalSpeed = _dashVel.x;
                 _currentVerticalSpeed = _dashVel.y;
                 // Cancel when the time is out or we've reached our max safety distance
-                if (_startedDashing + _dashLength < _fixedFrame) {
+                if (_startedDashing + _dashLength < _fixedFrame)
+                {
                     _dashing = false;
                     OnDashingChanged?.Invoke(false);
                     _currentVerticalSpeed = 0;
@@ -318,7 +387,8 @@ namespace Player {
         #region Move
 
         // We cast our bounds before moving to avoid future collisions
-        private void MoveCharacter() {
+        private void MoveCharacter()
+        {
             RawMovement = new Vector3(_currentHorizontalSpeed, _currentVerticalSpeed); // Used externally
             var move = RawMovement * Time.fixedDeltaTime;
 
@@ -334,7 +404,8 @@ namespace Player {
 
         // This is a little hacky, but it's very difficult to fix.
         // This will allow walking and jumping while right on the corner of a ledge.
-        void RunCornerPrevention() {
+        void RunCornerPrevention()
+        {
             // There's a fiddly thing where the rays will not detect ground (right inline with the collider),
             // but the collider won't fit. So we detect if we're meant to be moving but not.
             // The downside to this is if you stand still on a corner and jump straight up, it won't trigger the land

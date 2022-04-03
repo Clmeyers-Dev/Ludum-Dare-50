@@ -41,4 +41,7 @@ public class PlayerCombat : MonoBehaviour
     {
         Gizmos.DrawWireSphere(attackPoint.position,attackRange);
     }
+    void endAttack(){
+        animator.ResetTrigger("Attack");
+    }
 }
