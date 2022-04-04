@@ -45,13 +45,13 @@ public class abilities : MonoBehaviour
             rewindImage.flipX = false;
         }
          rewindImage.sprite = playerSprite.sprite;
-         rewindTimeStamp = healthManager.TimeReaming;
+         rewindTimeStamp = healthManager.TimeRemaing;
             currentTime = rewindTime;
         }
         if( Input.GetKeyDown(KeyCode.T)){
             transform.position = lastPostion.position;
-            healthManager.gainTime(rewindTimeStamp-healthManager.TimeReaming);
-            healthManager.TimeReaming = rewindTimeStamp;
+            healthManager.gainTime(rewindTimeStamp-healthManager.TimeRemaing);
+            healthManager.TimeRemaing = rewindTimeStamp;
             
             currentTime = 0;
         }

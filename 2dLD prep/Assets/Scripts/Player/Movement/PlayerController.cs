@@ -39,12 +39,13 @@ namespace Player
         public float wallHopForce;
         public float wallJumpForce;
         private int facingDirection;
-        private bool isWallSliding;
+        public bool isWallSliding;
         [SerializeField]
-        private bool canWallJump; 
+        private bool canWallJump;
         private float moveInput;
         void Start()
         {
+            audioManager = FindObjectOfType<AudioManager>();
             wallHopDirection.Normalize();
             wallJumpDirection.Normalize();
         }
@@ -55,22 +56,60 @@ namespace Player
             _collider = GetComponent<BoxCollider2D>();
         }
 
-        private void wallJump(){
-            if(isWallSliding&&moveInput ==0&&_jumpToConsume){
-                Vector2 forceToAdd = new Vector2 (wallHopForce*wallHopDirection.x*-facingDirection,wallHopForce*wallHopDirection.y);
-                _rb.AddForce(forceToAdd,ForceMode2D.Impulse);
+        private void wallJump()
+        {
+            
+           
+                Debug.Log("Wall jump");
+                Vector2 forceToAdd = new Vector2(wallJumpForce * wallJumpDirection.x * moveInput, wallJumpForce * wallJumpDirection.y);
+                _rb.AddForce(forceToAdd, ForceMode2D.Impulse);
                 _jumpToConsume = false;
-            }else if ((isWallSliding|| _colLeft||_colRight )&&moveInput!=0&&_jumpToConsume){
-                
-            }
+            
         }
+        public bool touchingLeftWall;
+        public bool touchingRightWall;
+        public bool flip = false;
+     
         private void Update()
         {
+
+            if ((touchingLeftWall || touchingRightWall) && !Grounded&&canWallJump)
+            {
+                isWallSliding = true;
+                if(transform.localScale.x ==1&&flip==false){
+                    transform.localScale = new Vector3( -1, 1, 1);
+                    flip = true;
+                }
+                if(transform.localScale.x == -1&&flip==false)
+                {
+                     transform.localScale = new Vector3( 1, 1, 1);
+                     flip = true;
+                }
+            }
+            else
+            {
+                isWallSliding = false;
+            }
+            if(Grounded == true)
+            flip = false;
+            
+            
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Space)&&isWallSliding&&canWallJump)
+            {
+                wallJump();
+             
+            }
             moveInput = UnityEngine.Input.GetAxisRaw("Horizontal");
-            if(Math.Abs( moveInput)>0){
-                animator.SetBool("walking",true);
-            }else{
-                 animator.SetBool("walking",false);
+            if (Math.Abs(moveInput) > 0&&Grounded)
+            {
+                animator.SetBool("walking", true);
+               // audioManager.play("walking");
+            }
+            else
+            {
+                audioManager.stop("walking");
+                audioManager.stop("walking2");
+                animator.SetBool("walking", false);
             }
             facingDirection = (int)transform.localScale.x;
             // Calculate velocity
@@ -79,9 +118,10 @@ namespace Player
 
             GatherInput();
         }
-
+   public AudioManager audioManager;
         void FixedUpdate()
         {
+
             _fixedFrame++;
 
             RunCollisionChecks();
@@ -91,6 +131,7 @@ namespace Player
             CalculateGravity();
             CalculateJump();
             CalculateDash();
+            if(!isWallSliding||!canWallJump)
             MoveCharacter();
         }
 
@@ -131,22 +172,56 @@ namespace Player
 
         public Transform safepos;
         // We use these raycast checks for pre-collision information
+        public LayerMask layerMask;
+        public float detectrange;
+        public Transform groundcheckPoint;
+        public bool groundedCheck;
+        public Transform leftwallPoint;
+        public Transform rightwallPoint;
         private void RunCollisionChecks()
         {
             // Generate ray ranges. 
             CalculateRayRanged();
 
             // Ground
-            var groundedCheck = RunDetection(_raysDown);
+            // bool groundedCheck = RunDetection(_raysDown);
+            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(groundcheckPoint.position, detectrange, layerMask);
+            if (hitEnemies.Length > 0)
+            {
+                groundedCheck = true;
+            }
+            else
+            {
+                groundedCheck = false;
+            }
+              Collider2D[] leftWall = Physics2D.OverlapCircleAll(leftwallPoint.position, detectrange, layerMask);
+            if (leftWall.Length > 0)
+            {
+                touchingLeftWall = true;
+            }
+            else
+            {
+                touchingLeftWall = false;
+            }
+             Collider2D[] rightWall = Physics2D.OverlapCircleAll(rightwallPoint.position, detectrange, layerMask);
+            if (rightWall.Length > 0)
+            {
+                touchingRightWall = true;
+            }
+            else
+            {
+                touchingRightWall = false;
+            }
             if (_grounded && !groundedCheck)
             {
                 _timeLeftGrounded = _fixedFrame; // Only trigger when first leaving
-               // safepos.position = transform.position;
+                                                 // safepos.position = transform.position;
                 OnGroundedChanged?.Invoke(false);
             }
             else if (!_grounded && groundedCheck)
             {
                 _coyoteUsable = true; // Only trigger when first touching
+                audioManager.play("land");
                 _executedBufferedJump = false;
                 _doubleJumpUsable = true;
                 _canDash = true;
@@ -188,6 +263,7 @@ namespace Player
 
         private void OnDrawGizmos()
         {
+             Gizmos.DrawWireSphere(groundcheckPoint.position,detectrange);
             if (!_collider) _collider = GetComponent<BoxCollider2D>();
 
             // Rays
@@ -310,6 +386,7 @@ namespace Player
         {
             if (_jumpToConsume && CanDoubleJump)
             {
+                  audioManager.play("jump");
                 _currentVerticalSpeed = _jumpHeight;
                 _doubleJumpUsable = false;
                 _endedJumpEarly = false;
@@ -321,6 +398,7 @@ namespace Player
             // Jump if: grounded or within coyote threshold || sufficient jump buffer
             if ((_jumpToConsume && CanUseCoyote) || HasBufferedJump)
             {
+              audioManager.play("jump");
                 _currentVerticalSpeed = _jumpHeight;
                 _endedJumpEarly = false;
                 _coyoteUsable = false;

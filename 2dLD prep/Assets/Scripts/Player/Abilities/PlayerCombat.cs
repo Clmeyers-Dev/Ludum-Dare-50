@@ -16,6 +16,10 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField]
     private float attackRate = 2f;
     private float nextAttackTime = 0;
+    void Start()
+    {
+        ph = GetComponent<PlayerHealthManager>();
+    }
     void Update()
     {
         if(Time.time >= nextAttackTime){
@@ -26,9 +30,12 @@ public class PlayerCombat : MonoBehaviour
         }
         }
     }
+    
+    private PlayerHealthManager ph;
     void Attack()
     {   
         animator.SetTrigger("Attack");
+        ph.playerController.audioManager.play("attack");
       Collider2D[] hitEnemies =  Physics2D.OverlapCircleAll(attackPoint.position,attackRange,enemyLayers);
     foreach(Collider2D enemy in hitEnemies)
     {

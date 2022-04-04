@@ -4,12 +4,12 @@ using UnityEngine;
 namespace Player{
 public class PlayerManager : MonoBehaviour
 {
-    private PauseMenu PauseMenu;
+    public PauseMenu PauseMenu;
     // Start is called before the first frame update
     void Start()
     {
-        PauseMenu = GetComponentInChildren<PauseMenu>();
-        if(PauseMenu!=null)
+      
+        
         PauseMenu.gameObject.SetActive(false);
     }
 

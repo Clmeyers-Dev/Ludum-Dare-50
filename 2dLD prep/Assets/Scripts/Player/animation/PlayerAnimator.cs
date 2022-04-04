@@ -24,6 +24,7 @@ namespace Player
         private IPlayerController _player;
         private ParticleSystem.MinMaxGradient _currentGradient;
         private Vector2 _movement;
+        public PlayerController player;
 
         void Awake()
         {
@@ -33,6 +34,7 @@ namespace Player
             _player.OnJumping += OnJumping;
             _player.OnDoubleJumping += OnDoubleJumping;
             _player.OnDashingChanged += OnDashing;
+            player = GetComponent<PlayerController>();
         }
 
         void OnDestroy()
@@ -96,7 +98,7 @@ namespace Player
             if (grounded)
             {
                 _anim.SetTrigger(GroundedKey);
-                _source.PlayOneShot(_footsteps[Random.Range(0, _footsteps.Length)]);
+//                _source.PlayOneShot(_footsteps[Random.Range(0, _footsteps.Length)]);
                 _moveParticles.Play();
                 _landParticles.transform.localScale = Vector3.one * Mathf.InverseLerp(0, _maxParticleFallSpeed, _movement.y);
                 SetColor(_landParticles);
@@ -117,17 +119,20 @@ namespace Player
             if (transform.localScale.x == 1 && Input.GetKeyDown(KeyCode.A)&&_player.Grounded)
             {
                 _jumpParticles.Play();
-                Debug.Log("play");
+                
             }
             if (transform.localScale.x == -1 && Input.GetKeyDown(KeyCode.D)&&_player.Grounded)
             {
                 _jumpParticles.Play();
-                Debug.Log("play 2");
+                
                 {
                     
                 }
             }
-              if (_player.Input.X != 0) transform.localScale = new Vector3(_player.Input.X > 0 ? 1 : -1, 1, 1);
+              if (_player.Input.X != 0&&!player.isWallSliding){ 
+                  transform.localScale = new Vector3(_player.Input.X > 0 ? 1 : -1, 1, 1);
+                  
+              }
             // Lean while running
             // var targetRotVector = new Vector3(0, 0, Mathf.Lerp(-_maxTilt, _maxTilt, Mathf.InverseLerp(-1, 1, _player.Input.X)));
             //  _anim.transform.rotation = Quaternion.RotateTowards(_anim.transform.rotation, Quaternion.Euler(targetRotVector), _tiltSpeed * Time.deltaTime);
