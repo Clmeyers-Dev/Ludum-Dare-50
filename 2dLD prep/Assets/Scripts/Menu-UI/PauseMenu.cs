@@ -3,22 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
+using UnityEngine.UI;
 public class PauseMenu : MonoBehaviour
 {
   public AudioMixer audioMixer;
   public float startTime;
+  public Slider volumeSlider;
   void Awake()
   {
     audioMixer.SetFloat("volume", global.Instance.volume);
   }
    public void savePlayer()
     {
-       global.Instance.volume = -20;
+       
       
     }
   public void PlayGame ()
   {
+    global.Instance.volume = volumeSlider.value;
      SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex +1);
+     Time.timeScale = 1;
      savePlayer();
   }
   public void quit(){

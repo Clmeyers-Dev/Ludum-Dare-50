@@ -17,6 +17,7 @@ public class alarmlclock : MonoBehaviour
     private float dmg;
     public bool boom = false;
     public AudioSource audioSource;
+    public AudioManager audioManager;
     // Update is called once per frame
     void Update()
     {
@@ -39,10 +40,14 @@ public class alarmlclock : MonoBehaviour
                    
                 }
                  enemy.GetComponent<AudioManager>().play("boom");
-                 Destroy(gameObject);
+               
             }
-        
+            audioManager = FindObjectOfType<AudioManager>();
+            audioManager.play("boom");
+            Instantiate(explosion,transform.position,Quaternion.identity);
+          Destroy(gameObject);
     }
+    public GameObject explosion;
     void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position,detectRange);

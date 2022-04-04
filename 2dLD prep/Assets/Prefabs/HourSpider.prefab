@@ -406,8 +406,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5f0d5e6c4986a34d86ddfb70a6b9db7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 10
-  timeToGive: 50
+  health: 30
+  timeToGive: 30
   clock: {fileID: 2961919795213511259}
 --- !u!95 &2961919795577734696
 Animator:

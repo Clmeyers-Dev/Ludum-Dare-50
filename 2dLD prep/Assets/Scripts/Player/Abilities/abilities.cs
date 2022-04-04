@@ -26,14 +26,18 @@ public class abilities : MonoBehaviour
     private SpriteRenderer playerSprite;
     public ParticleSystem teleportParticles;
     private float rewindTimeStamp;
+    public SpriteRenderer telorender;
     void Start()
     {
       rewindImage =  lastPostion.GetComponent<SpriteRenderer>();
+    telorender =   teleportPos.GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update()
     {
+       
+        telorender.sprite = playerSprite.sprite;
         
         if(currentTime>0){
             currentTime -=Time.deltaTime;
@@ -48,7 +52,7 @@ public class abilities : MonoBehaviour
          rewindTimeStamp = healthManager.TimeRemaing;
             currentTime = rewindTime;
         }
-        if( Input.GetKeyDown(KeyCode.T)){
+        if( Input.GetKeyDown(KeyCode.S)){
             transform.position = lastPostion.position;
             healthManager.gainTime(rewindTimeStamp-healthManager.TimeRemaing);
             healthManager.TimeRemaing = rewindTimeStamp;

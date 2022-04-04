@@ -5,6 +5,8 @@ using UnityEngine;
 public class saveSpot : MonoBehaviour
 {
     // Start is called before the first frame update
+    public Animator animator;
+    public AudioSource audioSource;
     void Start()
     {
         
@@ -18,8 +20,16 @@ public class saveSpot : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if(other.GetComponent<PlayerHealthManager>() !=null){
+            animator.SetBool("save",true);
+            if(!audioSource.isPlaying)
+            audioSource.Play();
             other.GetComponent<PlayerHealthManager>().savePlayer();
             other.GetComponent<PlayerHealthManager>().saveLocation();
         }
+         
     }
+    void endAnmation(){
+        animator.SetBool("save",false);
+    }
+  
 }

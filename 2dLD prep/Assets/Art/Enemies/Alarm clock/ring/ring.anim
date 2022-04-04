@@ -443,7 +443,7 @@ AnimationClip:
   m_HasGenericRootTransform: 1
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 1.6666666
+  - time: 0.26666668
     functionName: explode
     data: 
     objectReferenceParameter: {fileID: 0}

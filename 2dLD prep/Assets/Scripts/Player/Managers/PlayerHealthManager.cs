@@ -5,6 +5,7 @@ using Player;
 using TMPro;
 using System;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 public class PlayerHealthManager : MonoBehaviour
 {
     public float startTime = 300f;
@@ -22,6 +23,7 @@ public PlayerController playerController;
 private float safeLocationYOffest;
 [SerializeField]
 private float safeLocationXOffest;
+ public AudioMixer audioMixer;
 public AudioManager am;
 public Transform safeLocation;
 
@@ -49,6 +51,7 @@ global.Instance.respawnLocation = respawnLocation;
         
         if(global.Instance.respawnLocation!= new Vector3(0,0,0))
         transform.position = global.Instance.respawnLocation;
+         audioMixer.SetFloat("volume", global.Instance.volume);
     }
     void Update()
     {

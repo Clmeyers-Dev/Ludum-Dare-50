@@ -263,7 +263,7 @@ MonoBehaviour:
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
-    m_SensorSize: {x: 1.7082019, y: 1}
+    m_SensorSize: {x: 1.9238477, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -5587,7 +5587,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 637f7fee99930254b9f5e0adef762754, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -5748,6 +5748,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e48a3488f3f2170448da123b77d63616, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PauseMenu: {fileID: 0}
 --- !u!114 &794692339015603143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5760,16 +5761,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82969ef269277cf46bc10933ee12b56f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startTime: 0
+  startTime: 200
   TimeRemaing: 0
   clock: {fileID: 773094302}
   damageNumbers: {fileID: 6269351804899847821, guid: cc2db2341edba1e43a8fd48f2d345813, type: 3}
   healNumbers: {fileID: 6656883305510504727, guid: 6ac329355d50b5248b0a2852f9f39650, type: 3}
   playerController: {fileID: 794692339015603148}
   safeLocationYOffest: 1
-  safeLocationXOffest: 2
+  safeLocationXOffest: 1
+  audioMixer: {fileID: 24100000, guid: 2482574bc0269f14d8351228056afbe7, type: 2}
   am: {fileID: 0}
   safeLocation: {fileID: 794692339109736347}
+  respawnLocation: {x: 0, y: 0, z: 0}
 --- !u!114 &794692339015603140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5807,11 +5810,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 794692339015603139}
   attackPoint: {fileID: 794692339706611974}
-  attackRange: 1.4
+  attackRange: 1.58
   enemyLayers:
     serializedVersion: 2
     m_Bits: 128
-  meleedamage: 20
+  meleedamage: 10
   attackRate: 2
 --- !u!82 &794692339015603138
 AudioSource:

@@ -7,6 +7,7 @@ public class SawHazard : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField]
     private float damage;
+   
 
     [SerializeField]
     private Transform[] points;
@@ -21,6 +22,7 @@ public class SawHazard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         if(count<= points.Length-1)
         transform.position = Vector3.MoveTowards(transform.position , points[count].transform.position, speed*Time.deltaTime);
         if(count<= points.Length-1){
